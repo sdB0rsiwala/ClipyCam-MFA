@@ -1,11 +1,14 @@
 const express = require("express");
-const { signup, signin, forgotPassword, resetPassword } = require("../controllers/authController");
+const authController = require("../controllers/authController");
 
 const router = express.Router();
 
-router.post("/signup", signup);
-router.post("/signin", signin);
-router.post("/forgot-password", forgotPassword);  
-router.post("/reset-password", resetPassword);    
+// ✅ Use `authController.<functionName>` to ensure valid function references
+router.post("/signup", authController.signup);
+router.post("/signin", authController.signin);
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password", authController.resetPassword);
+router.post("/send-otp", authController.sendOtp);
+router.post("/verify-otp", authController.verifyOtp);
 
 module.exports = router;

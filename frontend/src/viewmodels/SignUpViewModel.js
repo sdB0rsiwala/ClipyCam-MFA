@@ -39,8 +39,16 @@ const useSignUpViewModel = () => {
 
         try {
             await AuthModel.signup(sanitizedUser);
-            setSuccessMessage("Signup successful! Please log in.");
-            return { success: true };
+            setSuccessMessage("Signup successful! Sending OTP for verification...");
+
+            // ✅ Store email for OTP verification
+            sessionStorage.setItem("email", sanitizedUser.email);
+            sessionStorage.removeItem("otpSent"); // ✅ Reset OTP tracking
+
+            // ✅ Send OTP automatically after signup
+            const otpResponse = await AuthModel.sendOtp(sanitizedUser.email);
+
+            return {success: true};
         } catch (err) {
             setError(err.error || "Signup failed");
             return { success: false };

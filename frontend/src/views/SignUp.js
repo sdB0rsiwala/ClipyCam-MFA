@@ -1,9 +1,13 @@
+
 import React, { useState } from "react";
 import useSignUpViewModel from "../viewmodels/SignUpViewModel";
+import useOtpViewModel from "../viewmodels/OtpViewModel";
+import { useNavigate } from "react-router-dom";
 import "../styles/SignUp.css";
 
 const SignUp = () => {
     const { signup, error, successMessage } = useSignUpViewModel();
+    const { sendOtp } = useOtpViewModel();
     const [user, setUser] = useState({
         firstname: "",
         lastname: "",
@@ -13,15 +17,32 @@ const SignUp = () => {
         confirmPassword: "",
     });
 
+    const navigate = useNavigate();
+
     const handleChange = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (user.password !== user.confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
         const result = await signup(user);
-        if (result.success) {
-            alert("Signup successful! Please login.");
+
+        if (result && result.success) {
+            // ✅ Store email for OTP verification
+            sessionStorage.setItem("email", user.email);
+            sessionStorage.removeItem("otpSent"); // ✅ Reset OTP tracking
+
+            // ✅ Send OTP automatically after signup
+            await sendOtp(user.email);
+
+            // ✅ Redirect to OTP Page
+            navigate("/otp");
         }
     };
 
